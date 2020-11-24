@@ -240,6 +240,7 @@ export default function sortableContainer(
           updateBeforeSortStart,
           onSortStart,
           useWindowAsScrollContainer,
+          autoScrollDistance = {top: 0, left: 0, right: 0, bottom: 0},
         } = this.props;
         const {node, collection} = active;
         const {isKeySorting} = this.manager;
@@ -351,41 +352,55 @@ export default function sortableContainer(
           const containerRight = containerLeft + containerWidth;
 
           if (this.axis.x) {
-            this.minTranslate.x = containerLeft - this.boundingClientRect.left;
+            this.minTranslate.x =
+              containerLeft -
+              this.boundingClientRect.left +
+              autoScrollDistance.left;
             this.maxTranslate.x =
-              containerRight - (this.boundingClientRect.left + this.width);
+              containerRight -
+              (this.boundingClientRect.left + this.width) -
+              autoScrollDistance.right;
           }
 
           if (this.axis.y) {
-            this.minTranslate.y = containerTop - this.boundingClientRect.top;
+            this.minTranslate.y =
+              containerTop -
+              this.boundingClientRect.top +
+              autoScrollDistance.top;
             this.maxTranslate.y =
-              containerBottom - (this.boundingClientRect.top + this.height);
+              containerBottom -
+              (this.boundingClientRect.top + this.height) -
+              autoScrollDistance.bottom;
           }
         } else {
           if (this.axis.x) {
             this.minTranslate.x =
               (useWindowAsScrollContainer ? 0 : containerBoundingRect.left) -
               this.boundingClientRect.left -
-              this.width / 2;
+              this.width / 2 +
+              autoScrollDistance.left;
             this.maxTranslate.x =
               (useWindowAsScrollContainer
                 ? this.contentWindow.innerWidth
                 : containerBoundingRect.left + containerBoundingRect.width) -
               this.boundingClientRect.left -
-              this.width / 2;
+              this.width / 2 -
+              autoScrollDistance.right;
           }
 
           if (this.axis.y) {
             this.minTranslate.y =
               (useWindowAsScrollContainer ? 0 : containerBoundingRect.top) -
               this.boundingClientRect.top -
-              this.height / 2;
+              this.height / 2 +
+              autoScrollDistance.top;
             this.maxTranslate.y =
               (useWindowAsScrollContainer
                 ? this.contentWindow.innerHeight
                 : containerBoundingRect.top + containerBoundingRect.height) -
               this.boundingClientRect.top -
-              this.height / 2;
+              this.height / 2 -
+              autoScrollDistance.bottom;
           }
         }
 
@@ -648,9 +663,9 @@ export default function sortableContainer(
 
         // For keyboard sorting, we want user input to dictate the position of the nodes
         const mustShiftBackward =
-          isKeySorting && (index > this.index && index <= prevIndex);
+          isKeySorting && index > this.index && index <= prevIndex;
         const mustShiftForward =
-          isKeySorting && (index < this.index && index >= prevIndex);
+          isKeySorting && index < this.index && index >= prevIndex;
 
         const translate = {
           x: 0,
